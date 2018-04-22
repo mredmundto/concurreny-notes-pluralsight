@@ -1,22 +1,43 @@
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class main2 {
 
-    public static void main(String[] args){
-        Runnable task = () -> System.out.println("I am in thread" + Thread.currentThread().getName());
+    public static void main(String[] args) throws ExecutionException, InterruptedException, TimeoutException{
 
-        new Thread(task).start();
+//        // Using Runnable and Executor service
+//        Runnable task = () -> System.out.println("I am in thread" + Thread.currentThread().getName());
+//
+//        new Thread(task).start();
+//
+////        ExecutorService service = Executors.newSingleThreadExecutor();
+//        ExecutorService service = Executors.newFixedThreadPool(4);
+//
+//        for (int i = 0; i < 10; i++){
+////            new Thread(task).start();
+//            service.execute(task);
+//        }
+//
+//        service.shutdown();
 
-//        ExecutorService service = Executors.newSingleThreadExecutor();
+        // Using Callable and Future
 
-        ExecutorService service = Executors.newFixedThreadPool(4);
+        Callable<String> task = () -> {
+            Thread.sleep(300);
+            return "I am in thread" + Thread.currentThread().getName();
+        };
 
-        for (int i = 0; i < 10; i++){
-//            new Thread(task).start();
-            service.execute(task);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        try {
+            for (int i = 0; i < 10; i ++){
+                Future<String> future = executor.submit(task);
+                System.out.println("I get:" + future.get(1000, TimeUnit.MILLISECONDS));
+            }
+        }finally{
+            executor.shutdown();
         }
 
-        service.shutdown();
+
+
     }
 }
